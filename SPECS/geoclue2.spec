@@ -1,11 +1,12 @@
 Name:           geoclue2
 Version:        2.6.0
-Release:        7%{?dist}
+Release:        8%{?dist}.1
 Summary:        Geolocation service
 
 License:        GPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/GeoClue/
 Source0:        https://gitlab.freedesktop.org/geoclue/geoclue/-/archive/%{version}/geoclue-%{version}.tar.bz2
+Source1:        geoclue2.sysusers
 
 BuildRequires:  avahi-glib-devel
 BuildRequires:  gettext
@@ -16,13 +17,14 @@ BuildRequires:  json-glib-devel
 BuildRequires:  libsoup-devel
 BuildRequires:  meson
 BuildRequires:  ModemManager-glib-devel
-BuildRequires:  systemd
+BuildRequires:  systemd, systemd-rpm-macros
 BuildRequires:  vala
 Requires(pre):  shadow-utils
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
 Requires:       dbus
+%{?sysusers_requires_compat}
 
 Obsoletes:      geoclue2-server < 2.1.8
 
@@ -80,20 +82,14 @@ The %{name}-demos package contains demo applications that use %{name}.
 
 %install
 %meson_install
+install -Dpm 0644 %{SOURCE1} %{buildroot}%{_sysusersdir}/geoclue2.conf
 
 # Home directory for the 'geoclue' user
 mkdir -p $RPM_BUILD_ROOT/var/lib/geoclue
 
 
 %pre
-# Update the home directory for existing users
-getent passwd geoclue >/dev/null && \
-    usermod -d /var/lib/geoclue geoclue &>/dev/null
-# Create a new user and group if they don't exist
-getent group geoclue >/dev/null || groupadd -r geoclue
-getent passwd geoclue >/dev/null || \
-    useradd -r -g geoclue -d /var/lib/geoclue -s /sbin/nologin \
-    -c "User for geoclue" geoclue
+%sysusers_create_compat %{SOURCE1}
 exit 0
 
 %post
@@ -122,6 +118,7 @@ exit 0
 %{_mandir}/man5/geoclue.5*
 %{_unitdir}/geoclue.service
 %{_libexecdir}/geoclue-2.0/demos/agent
+%{_sysusersdir}/geoclue2.conf
 %attr(755,geoclue,geoclue) %dir /var/lib/geoclue
 
 %files libs
@@ -152,6 +149,14 @@ exit 0
 
 
 %changelog
+* Thu Mar 06 2025 Milan Crha <mcrha@redhat.com> - 2.6.0-8.1
+- Resolves: RHEL-78739 (Build for RHEL 9.6)
+
+* Tue Mar 04 2025 Milan Crha <mcrha@redhat.com> - 2.6.0-8
+- Backport Fedora change to provide a sysusers.d file to get user() and group() provides
+  (see https://fedoraproject.org/wiki/Changes/Adopting_sysusers.d_format)
+- Resolves: RHEL-78739
+
 * Wed Nov 30 2022 Kalev Lember <klember@redhat.com> - 2.6.0-7
 - Do not own polkit rules.d dir
 
