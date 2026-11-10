@@ -1,12 +1,14 @@
 Name:           geoclue2
 Version:        2.6.0
-Release:        8%{?dist}.1
+Release:        9%{?dist}
 Summary:        Geolocation service
 
 License:        GPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/GeoClue/
 Source0:        https://gitlab.freedesktop.org/geoclue/geoclue/-/archive/%{version}/geoclue-%{version}.tar.bz2
 Source1:        geoclue2.sysusers
+
+Patch01:        0001-beacondb-default-url.patch
 
 BuildRequires:  avahi-glib-devel
 BuildRequires:  gettext
@@ -72,7 +74,7 @@ The %{name}-demos package contains demo applications that use %{name}.
 
 
 %prep
-%setup -q -n geoclue-%{version}
+%autosetup -p1 -n geoclue-%{version}
 
 
 %build
@@ -149,8 +151,9 @@ exit 0
 
 
 %changelog
-* Thu Mar 06 2025 Milan Crha <mcrha@redhat.com> - 2.6.0-8.1
-- Resolves: RHEL-78739 (Build for RHEL 9.6)
+* Tue Aug 04 2026 Milan Crha <mcrha@redhat.com> - 2.6.0-9
+- Switch to BeaconDB from discontinued Mozilla Location Service
+- Resolves: RHEL-222528
 
 * Tue Mar 04 2025 Milan Crha <mcrha@redhat.com> - 2.6.0-8
 - Backport Fedora change to provide a sysusers.d file to get user() and group() provides

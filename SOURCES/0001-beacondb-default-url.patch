@@ -1,0 +1,57 @@
+--- a/src/gclue-config.c	2022-02-10 19:03:30.000000000 +0100
++++ b/src/gclue-config.c	2026-08-04 10:56:15.324605555 +0200
+@@ -219,8 +219,10 @@ load_enable_source_config (GClueConfig *
+         return enable;
+ }
+ 
+-#define DEFAULT_WIFI_URL "https://location.services.mozilla.com/v1/geolocate?key=" MOZILLA_API_KEY
+-#define DEFAULT_WIFI_SUBMIT_URL "https://location.services.mozilla.com/v1/submit?key=" MOZILLA_API_KEY
++/* Mozilla Location Service was shut down in 2024; BeaconDB is its
++ * community-run, API-compatible successor and needs no API key. */
++#define DEFAULT_WIFI_URL "https://api.beacondb.net/v1/geolocate"
++#define DEFAULT_WIFI_SUBMIT_URL "https://api.beacondb.net/v2/geosubmit"
+ #define DEFAULT_WIFI_SUBMIT_NICK "geoclue"
+ 
+ static void
+--- a/data/geoclue.conf.in	2022-02-10 19:03:30.000000000 +0100
++++ b/data/geoclue.conf.in	2026-08-04 10:56:31.888607226 +0200
+@@ -45,12 +45,11 @@ enable=true
+ # Enable WiFi source
+ enable=true
+ 
+-# URL to the WiFi geolocation service. If not set, defaults to Mozilla's
+-# Location Service with a hardcoded key. To use a custom key, uncomment this URL
+-# while changing YOUR_KEY to your MLS API key.
+-#url=https://location.services.mozilla.com/v1/geolocate?key=YOUR_KEY
++# URL to the WiFi geolocation service. If not set, defaults to BeaconDB,
++# a community-run successor to the now-shut-down Mozilla Location Service.
++#url=https://api.beacondb.net/v1/geolocate
+ 
+-# To use the Google geolocation service instead of Mozilla's, uncomment this URL
++# To use the Google geolocation service instead, uncomment this URL
+ # while changing YOUR_KEY to your Google API key.
+ #
+ # WARNING: Please make sure that you are complying with the Google's ToS and
+@@ -60,16 +59,15 @@ enable=true
+ #
+ #url=https://www.googleapis.com/geolocation/v1/geolocate?key=YOUR_KEY
+ 
+-# Submit data to Mozilla Location Service
+-# If set to true, geoclue will automatically submit network data to Mozilla
+-# each time it gets a GPS lock.
++# Submit data to the WiFi geolocation service
++# If set to true, geoclue will automatically submit network data each time
++# it gets a GPS lock.
+ #
+ submit-data=false
+ 
+-# URL to submission API of Mozilla Location Service. If not set, defaults to
+-# Mozilla's API with a hardcoded key. To use a custom key, uncomment this URL
+-# while changing YOUR_KEY to your MLS API key.
+-#submission-url=https://location.services.mozilla.com/v1/submit?key=YOUR_KEY
++# URL to submission API of the WiFi geolocation service. If not set,
++# defaults to BeaconDB's submission API.
++#submission-url=https://api.beacondb.net/v2/geosubmit
+ 
+ # A nickname to submit network data with. A nickname must be 2-32 characters long.
+ submission-nick=geoclue
